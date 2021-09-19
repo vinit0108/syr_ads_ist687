@@ -1,0 +1,126 @@
+### Intro to Data Science - Lab 3
+### IST687 Section M002
+### Professor Anderson
+### Enter your name here: Chaithra Kopparam Cheluvaiah
+### 1. I did this homework by myself, with help from the book and the professor.
+
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. Get	an	explanation	of	the	contents	of	the state.x77 data	set: help("state.x77")
+```{r}
+help(state.x77)
+View(state.x77)
+```
+
+2. Create	a	dataframe	from the	built-in	state.x77 data	set,	store	in	a	variable	named
+‘dfStates77’
+```{r}
+dfStates77 <- data.frame(state.x77)
+str(dfStates77)
+```
+
+3. Summarize	the	variables	in	your	dfStates77	data	set - using	the	summary() function
+```{r}
+summary(dfStates77)
+```
+4. Calculate	the	total	population	of	the	U.S. by adding	together	the	populations	of	
+each	of	the	individual	states in	dfStates77.			Store	the	result	in	a	new	variable	
+called	totalPop77.
+```{r}
+totalPop77 <- sum(dfStates77$Population)
+totalPop77
+```
+5. Use	R	code	to	read	a	CSV	data	file	directly	from	the	web. Store	the	dataset	into	a	
+new	dataframe,	called	dfStates17. The	URL	is: "https://intro-datascience.s3.us-east-2.amazonaws.com/statesNew.csv"
+Note:	Use	the	function read_csv(	) to	read	in	the	data.	
+You	will	need	to	run	library(readr) or	library(tidyverse) before	you	can	run	
+read_csv(	). If	that	generates	an	error,	then	you	first	need	to	do	
+install.packages("readr") or install.packages("tidyverse")
+```{r}
+install.packages("readr")
+library(readr)
+dfStates17 <- read.csv("https://intro-datascience.s3.us-east-2.amazonaws.com/statesNew.csv")
+```
+6. Summarize	the	variables	in	your	new	data	set,	using	the	summary	command.
+```{r}
+summary(dfStates17)
+```
+7. The	data you	now	have stored in dfStates17 were collected in 2017.	As such, about 40 years	passed between	the two data collections.	Calculate	the total 2017 population of the U.S. in dfStates17 by	adding	together	the populations	of	each of the	individual states. Store	the result in a	new	variable called totalPop17.
+```{r}
+totalPop17 <- sum(dfStates17$population)
+totalPop17
+```
+8. Create and	interpret a	ratio of totalPop77 to totalPop17. Check to ensure that the result makes sense!
+```{r}
+totalPop77/totalPop17
+```
+
+Create	a	function	that,	given	population	and	area,	calculates	population	density	by dividing	a	population	value	by	an	area	value.	Here	is	the	core	of	the	function:
+popDensity <- function (pop, area) {
+   Add your code below here: Next, divide pop by area and store the result in a variable called     popDens
+ return(popDens) # This provides the function’s output
+}
+```{r}
+popDensity <- function(pop, area){
+  popDens <- pop/area
+  return(popDens)
+}
+```
+
+9. After	you	finish	your	function,	make	sure	to	run	all	of	the	lines	of	code	in	it	so
+that	the	function	becomes	known	to	R.
+10. Make	a	fresh copy of state.x77 into dfStates77
+```{r}
+dfStates77 <- data.frame(state.x77)
+View(dfStates77)
+```
+
+11. Store	the	population	vector	in	a	variable	called	tempPop.	Adjust	the	tempPop	as needed	(based	on	your	analysis	at	the	end	of	the	first	breakout)
+```{r}
+tempPop <- dfStates77$Population
+```
+
+12. Store	the	area	vector	in	a	variable,	called	tempArea	
+```{r}
+tempArea <- dfStates77$Area
+```
+13. Now	use	tempPop	and	tempArea	to	call	your	function:
+popDensity(tempPop,	tempArea)
+```{r}
+
+popDensity(tempPop , tempArea)
+```
+14. Store	the	results	from the	previous	task	in	a	column of the	dfStates77 dataframe,	called	popDensity
+```{r}
+dfStates77["popDensity"] <- popDensity(tempPop , tempArea)
+```
+
+15. Use	which.max(	)	and	which.min(	)	to	reveal	which	is	the	most	densely populated	and	which	is	the	least	densely	populated	state.	Make	sure	that	you understand	the	number	that	is	revealed	as well	as the	name	of	the	state.
+```{r}
+maxIndex <- which.max(dfStates77$popDensity)
+dfStates77[maxIndex,]
+minIndex <- which.min(dfStates77$popDensity)
+dfStates77[minIndex,]
+```
+
+16. Using	tidyverse,	sort	the	dataframe	using	the	popDensity	attribute,	then	using	
+the	slice	function,	show	the	first	row	in	the	sorted	database.	
+```{r}
+sortedDensity <- sort(dfStates77$popDensity)
+sortedDensity
+install.packages("tidyverse")
+library(tidyverse)
+
+install.packages("dplyr")
+library(dplyr)
+
+slice(sortedDensity, 1:3)
+
+```
+
+
+
+
