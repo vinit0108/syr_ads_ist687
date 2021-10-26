@@ -1,7 +1,7 @@
-## Intro to Data Science - HW 1
-##### Copyright Jeffrey Stanton, Jeffrey Saltz, and Jasmina Tacheva
-
-
+---
+title: "Intro to Data Science - HW 1"
+output: pdf_document
+---
 ```{r}
 # Enter your name here: Chaithra Kopparam Cheluvaiah
 ```

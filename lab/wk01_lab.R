@@ -7,7 +7,7 @@ sum(numbers) # sum function
 # vector math in which a calculation runs on every element of a vector
 updated_numbers <- numbers + 10
 
-sum(c(1:10)) # range of numbers
+sum(1:10) # range of numbers
 
 # descriptive statistics
 mean(numbers)
@@ -21,3 +21,4 @@ numbers>5 # returns vector of true/false
 bigNum <- numbers[numbers>5] # return the values having true
 
 help(mean)
+
