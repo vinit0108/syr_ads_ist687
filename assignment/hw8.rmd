@@ -42,7 +42,7 @@ B.	In the analysis that follows, **Ozone** will be considered as the **outcome v
 # Wind is the average wind speed measured in miles per hour
 # Temp is max daily temperature measured in Fahrenheit
 
-# trying to predict how ozone concentration or ozone levels are affected by
+# we are trying to predict how ozone concentration or ozone levels are affected by
 # solar radiation,wind speed and the temperature by taking the sample data
 # from New York Air Quality Measurements
 ```
@@ -80,6 +80,7 @@ geom_point() +
 geom_smooth(method="lm", se=FALSE)
 
 #from the plot, It appears, there is a very weak positive relation between Ozone and Solar.R
+# data points are spread out. points are not very close to regression line
 ```
 
 ```{r}
@@ -88,6 +89,8 @@ geom_point() +
 geom_smooth(method="lm", se=FALSE)
 
 #from the plot, It appears, there is a strong negative relation between Ozone and Wind
+# data points are very close to regression line hence the relation is strong
+# negative slope of regression line indicates ozone & wind are negativly correlated
 ```
 ```{r}
 ggplot(air, aes(x=Temp, y=Ozone)) +
@@ -95,6 +98,8 @@ geom_point() +
 geom_smooth(method="lm", se=FALSE)
 
 #from the plot, It appears, there is a strong positive relation between Ozone and Temp
+# data points are very close to the regression line hence relation is strong
+# positive slope of regression line indicates ozone & temp are positively correlated
 ```
 F.	Next, create a **simple regression model** predicting **Ozone based on Wind**, using the **lm( )** command. In a comment, report the **coefficient** (aka **slope** or **beta weight**) of **Wind** in the regression output and, **if it is statistically significant**, **interpret it** with respect to **Ozone**. Report the **adjusted R-squared** of the model and try to explain what it means.
 
@@ -107,11 +112,13 @@ summary(windModel)
 # for every additional increase in Wind speed, Ozone concentration is predicted to
 # decreases by 4.59 ppb
 
-# p-value 2.148e-11 is under 0.05 cutoff: it is statistically significant.
+# p-value 2.148e-11 is under 0.05 cutoff: wind is statistically significant.
 # This shows that Wind and Ozone are related and we should be considering in the
 # regression model for predicting Ozone level
 
 # Adjusted R-Square 0.2527: Wind speed accounts for about 25.27% of the Ozone level
+# model is 25.27% efficient in predicting ozone level given the independent variable
+# as wind speed
 ```
 
 G.	Create a **multiple regression model** predicting **Ozone** based on **Solar.R**, **Wind**, and **Temp**.<br> **Make sure to include all three predictors in one model – NOT three different models each with one predictor.**
@@ -126,12 +133,17 @@ H.	Report the **adjusted R-Squared** in a comment – how does it compare to the
 
 
 ```{r}
+# how does it compare to the adjusted R-squared from Step F?
 # Adjusted R-squared: 0.4207 (multiple regression) is greater than
 # Adusted R-squared of linear regression: 0.2527 from Step F
 
-# Multiple Regression is better model than Linear regression with Wind speed
+# Is this better or worse?
+# Multiple Regression is better model than Linear regression with
+# only Wind speed
 
-# Wind speed and daily temperature are statistically significant
+# Which of the predictors are **statistically significant** in the model?
+# Wind speed and daily temperature are statistically significant.
+# because p-values are less than 0.05
 
 # co-efficients of predictors that are significant
 #Wind         -2.69669
@@ -162,12 +174,13 @@ multipleRegTemp <- lm(Temp~Ozone+Solar.R+Wind, data=air)
 summary(multipleRegTemp)
 
 # Adjusted R-squared:  0.403
-# It means Ozone concentration, Solar Radiation, and Wind Speed accounts for
-# about 40.3% of daily temperature
+# It means the model is 40.3% efficient in predicting daily temperature
+# given the independent variables as Ozone concentration, Solar Radiation,
+# and Wind Speed
 
 # Quality of the model appears to be good as the p-value of the model 2.2e-16 is under 0.05
-# also, all the predictors have p-values under 0.05 that imples the predictors are
-# significant in predicting daily temperature
+# also, all the predictors have p-values under 0.05 that implies the predictors are
+# statistically significant in predicting daily temperature
 
 # To decide if this a better model, we need to perform regression with other prdictors and
 # compare the Adjusted R-Square values with other models. However, 40.3% seems to be pretty
