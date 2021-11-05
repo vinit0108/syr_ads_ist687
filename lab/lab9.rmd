@@ -4,78 +4,146 @@ output: pdf_document
 ---
 
 ```{r}
+## Intro to Data Science - Lab 9
+# IST687 Section M002
+# Professor Anderson
+# Enter your name here: Chaithra Kopparam Cheluvaiah
 # 1. I did this homework by myself, with help from the book and the professor.
 
-# installing packages
-install.packages("kernlab")
-install.packages("caret")
+#installing required packages
+#install.packages("kernlab")
+#install.packages("caret")
 ```
+
+
 ```{r}
+# importing the packages
 library(kernlab)
 library(caret)
+library(tidyverse)
+
+# getting GermanCredit data
 data("GermanCredit")
-subCredit <- GermanCredit[,1:10]
-str(subCredit)
+subCredit <- GermanCredit[,1:10] # selecting only first 10 columns
+glimpse(subCredit) # exploring the data
 
 ```
 1.	Examine the data structure that str() reveals. Also use the help() function to learn more about the GermanCredit data set. Summarize what you see in a comment.
 ```{r}
 help(GermanCredit)
 str(subCredit)
+summary(subCredit)
+table(subCredit$Class)
+plot(subCredit$Class)
+
+# Summarize what you see in a comment
+# GermanCredit data set has 1000 rows and 10 columns
+# 1) class represents credit worthiness of the customer and it is a dichotomous variable
+# having only two possible values-bad and good
+# 2) all other variables except class are quantitative variables
+# 3) There are 300 customers classified as bad and 700 customers as good
 ```
 
 2.	Use the createDataPartition() function to generate a list of cases to include in the training data. This function is conveniently provided by caret and allows one to directly control the number of training cases. It also ensures that the training cases are balanced with respect to the outcome variable. Try this: trainList <- createDataPartition(y=subCredit$Class,p=.40,list=FALSE)
 ```{r}
+set.seed(111)
+# randomly sample for training dataset elements
+# 40% of data from subCredit = 400 cases will used for building the model
 trainList <- createDataPartition(y=subCredit$Class,p=.40,list=FALSE)
 ```
 
 3.	Examine the contents of trainList to make sure that it is a list of case numbers. With p=0.40, it should have 400 case numbers in it.
 ```{r}
-
+trainList[1:20] # first 20 case numbers
+length(trainList)
 ```
 
 4.	What is trainList? What do the elements in trainList represent? Which attribute is balanced in the trainList dataset?
 ```{r}
+# What is trainList?
+#trainList is a vector consisting of case numbers that will used for building the SVM model
 
+# What do the elements in trainList represent?
+# case numbers/row indices from subCredit dataframe
+
+# Which attribute is balanced in the trainList dataset?
+# Class attribute
 ```
 
 5.	Use trainList and the square brackets notation to create a training data set called “trainSet” from the subCredit data frame. Look at the structure of trainSet to make sure it has all of the same variables as subCredit. The trainSet structure should be a data frame with 400 rows and 10 columns.
 ```{r}
 trainSet <- subCredit[trainList,]
+head(trainSet)
+dim(trainSet)
 ```
 
 6.	Use trainList and the square brackets notation to create a testing data set called “testSet” from the subCredit data frame. The testSet structure should be a data frame with 600 rows and 10 columns and should be a completely different set of cases than trainSet.
 ```{r}
 testSet <- subCredit[-trainList,]
+dim(testSet)
 ```
 7.	Create and interpret boxplots of all the predictor variables in relation to the outcome variable (Class).
 ```{r}
+boxplot(subCredit$Duration~subCredit$Class,data=subCredit)
+# Duration with class value Bad: data is not spread out. from the plot, we can
+# see first and second quartile are close to median with no outliers. This implies
+# most of the data is around mean/median
 
+# Duration with class value Good: data is not spread out. from the plot, we can
+# see first and second quartile are close to median but it has many outliers
+# this results in right skewed distribution
+
+boxplot(subCredit$Amount~subCredit$Class,data=subCredit)
+# Amount variable: from the plot we can notice that there are many outliers in
+# the data resulting right skewed distribution
+
+boxplot(subCredit$Age~subCredit$Class,data=subCredit)
+# Age Variable is also having many outliers in the data resulting in right skewed
+# distribution
+
+# we need to handle outliers in order to get more accurate model while using these
+# features in the model building
 ```
-8.	Train a support vector machine with the ksvm() function from the kernlab package. Make sure that you have installed and libraried the kernlab package. Have the cost be 5, and have ksvm do 3 cross validations (hint: try prob.model = TRUE)
+8.	Train a support vector machine with the ksvm() function from the kernlab package. Make sure that you have installed and libraries the kernlab package. Have the cost be 5, and have ksvm do 3 cross validations (hint: try prob.model = TRUE)
 ```{r}
-
+?ksvm
+svmModel <- ksvm(Class~.,data=trainSet,C=5,cross=3,prob.model=TRUE)
 ```
 
 9.	Examine the ksvm output object. In particular, look at the cross-validation error for an initial indication of model quality. Add a comment that gives your opinion on whether this is a good model.
 ```{r}
+svmModel
+# cross validation error is approx 28%
+# This indicates overall prediction error of all the 3 folds (cross=3)
 
+# also, training error is 15.5%
+# considering both the errors, it seems to be bad model as accuracy is
+# is only ~56.5% (100% - (cross validaton error%+training error%)) on training data set
 ```
 
 10.	Predict the training cases using the predict command
 ```{r}
-
+preOut <- predict(svmModel,newdata=testSet, type="response")
+preOut[1:20]
 ```
 11.	Examine the predicted out object with str( ). Then, calculate a confusion matrix using the table function.
 ```{r}
-
+str(preOut)  # preOut is a vector of factor variable with two levels-Bad/Good
+table(preOut,testSet$Class) #creating confusion matrix
 ```
 12.	Interpret the confusion matrix and in particular calculate the overall accuracy of the model. The diag( ) command can be applied to the results of the table command you ran in the previous step. You can also use sum( ) to get the total of all four cells.
 ```{r}
-
+accuracy <- sum(diag(table(preOut,testSet$Class)))/sum(table(preOut,testSet$Class))
+accuracy
+# Interpret the confusion matrix
+# diagonal elements indicate the right prediction of both values of Class
+# off-diagonal elements are the wrong predictions
+# so, accuracy = sum of all the right predictions/total predictions
 ```
 
 13.	Check you calculation with confusionMatrix() function in the caret package.
 ```{r}
+confusionMatrix(preOut,testSet$Class)
 
+# accuracy=69.5% is same as that was calculated in previous steps
 ```
