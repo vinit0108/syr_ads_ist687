@@ -183,7 +183,8 @@ F.	Explain, in a block comment:<br> 1) why it is valuable to have a “test” d
 # accuracy can be 20%.
 
 # 2) what potential ethical challenges this type of automated classification may pose.
-# while partitioning the data, we need to balance the classification with respect to outcome
+# while partitioning the data, we do not know how the data is being divided as training and testing sets
+# we need to balance the classification with respect to outcome
 # variable otherwise, data will not be representative of the population
 # also, it can lead to bias in the data
 ```
@@ -225,7 +226,10 @@ D. Review the attributes being used for this credit decision. Are there any that
 
 ```{r}
 # Are there any that might not be appropriate, with respect to fairness?
-# yes, present_residence attribute might not be appropriate in predicting credit risk
+# yes, present_residence attribute might not be appropriate in
+# predicting credit risk
+# present residence : how long the person is staying in particular address will not
+# affect whether he/she can pay the installments on time.
 
 # how would you address this fairness situation?
 # by excluding the attribute while building the model
