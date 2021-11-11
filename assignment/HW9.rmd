@@ -1,3 +1,7 @@
+---
+title: "HW 9"
+output: pdf_document
+---
 # Intro to Data Science HW 9
 ##### Copyright Jeffrey Stanton, Jeffrey Saltz, and Jasmina Tacheva
 
@@ -44,6 +48,7 @@ B.	Which variable contains the outcome we are trying to predict, **credit risk**
 
 
 ```{r}
+# yes, credit risk is the outcome variable we are trying to predict
 cred <- data.frame(duration=credit$duration, 
                    amount=credit$amount, 
                    installment_rate=credit$installment_rate, 
@@ -57,7 +62,7 @@ C.	Although all variables in **cred** except **credit_risk** are coded as numeri
 
 
 ```{r}
-# credit_history is coded as numeric but it can be factored variable with below values
+# credit_history is coded as numeric but it can be factored with below values
 # 1- no credits taken/all credits paid back duly
 # 2- all credits at this bank paid back duly
 # 3- existing credits paid back duly till now
@@ -73,8 +78,8 @@ C.	Although all variables in **cred** except **credit_risk** are coded as numeri
 #credit history: credit history of the customer with above mentioned values
 #people_liable: Number of people being liable to provide maintenance for
 #credit_risk: indictes potential borrowers
-# 1- reliable borrowers
-# 0- borrowers posing a risk
+# 0- reliable borrowers
+# 1- borrowers posing a risk
 ```
 
 ## Part 2: Create training and test data sets
@@ -83,6 +88,9 @@ A.	Using techniques discussed in class, create **two datasets** – one for **tr
 
 
 ```{r}
+set.seed(100)
+# randomly sample for training dataset elements
+# 40% of data from subCredit = 400 cases will used for building the model
 trainList <- createDataPartition(y=cred$credit_risk,p=.40,list=FALSE)
 training <- cred[trainList,]
 testing <- cred[-trainList,]
@@ -92,8 +100,8 @@ B.	Use the dim( ) function to demonstrate that the resulting training data set a
 
 
 ```{r}
-dim(training)
-dim(testing)
+dim(training) # must have 400 rows
+dim(testing) # must have 600 rows
 ```
 
 ## Part 3: Build a Model using SVM
@@ -112,6 +120,11 @@ Hint: explore finalModel in the model that would created in F.
 
 ```{r}
 svmModel
+# cross validation error is approx 33.24%
+# This indicates overall prediction error of all the 3 folds (cross=3)
+
+# considering cross validation error, the model has accuracy
+# of ~66.76% (100% - (cross validaton error%)) on training data set
 ```
 
 ## Part 4: Predict Values in the Test Data and Create a Confusion Matrix
@@ -127,7 +140,8 @@ B.	The **svmPred** object contains a list of classifications for reliable (=0) o
 
 
 ```{r}
-head(svmPred)
+head(svmPred) # svmPred is a vector of factor variable with two reliable borrowers(0)/borrowers
+# posing risk (1)
 ```
 
 C.	Explore the **confusion matrix**, using the caret package
@@ -140,7 +154,7 @@ confusionMatrix(svmPred,testing$credit_risk)
 D.	What is the **accuracy** based on what you see in the confusion matrix.
 
 ```{r}
-# 71.33%
+#accuracy is 69.67%
 ```
 
 E.	Compare your calculations with the **confusionMatrix()** function from the **caret** package.
@@ -148,13 +162,30 @@ E.	Compare your calculations with the **confusionMatrix()** function from the **
 ```{r}
 str(svmPred)
 table(svmPred,testing$credit_risk)
+
+accuracy <- sum(diag(table(svmPred,testing$credit_risk)))/sum(table(svmPred,testing$credit_risk))
+accuracy
+
+# diagonal elements indicate the right prediction of both values of credit_risk
+# off-diagonal elements are the wrong predictions
+# so, accuracy = sum of all the right predictions/total predictions
+
+# accuracy is same as that was calculated in confusion matrix
 ```
 
 F.	Explain, in a block comment:<br> 1) why it is valuable to have a “test” dataset that is separate from a “training” dataset, and <br>2) what potential ethical challenges this type of automated classification may pose. 
 
 
 ```{r}
+# 1) why it is valuable to have a “test” dataset that is separate from a “training” dataset
+# to check if the model is overfitting. We can get accuracy of the model as 90% with training
+# data set but, when it starts to predict values for the data it that model has never seen
+# accuracy can be 20%.
 
+# 2) what potential ethical challenges this type of automated classification may pose.
+# while partitioning the data, we need to balance the classification with respect to outcome
+# variable otherwise, data will not be representative of the population
+# also, it can lead to bias in the data
 ```
 
 ## Part 5: Now build a tree model (with rpart)
@@ -184,10 +215,18 @@ C. Use the **predict()** function to predict the testData, and then generate a c
 predictValues <- predict(creditTree, newdata=testing, type = "class")
 # confusion matrix
 table(predictValues,testing$credit_risk)
+
+accuracy <- sum(diag(table(predictValues,testing$credit_risk)))/
+  sum(table(predictValues,testing$credit_risk))
+accuracy
 ```
 
 D. Review the attributes being used for this credit decision. Are there any that might not be appropriate, with respect to fairness? If so, which attribute, and how would you address this fairness situation. Answer in a comment block below
 
 ```{r}
+# Are there any that might not be appropriate, with respect to fairness?
+# yes, present_residence attribute might not be appropriate in predicting credit risk
 
+# how would you address this fairness situation?
+# by excluding the attribute while building the model
 ```
