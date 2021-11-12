@@ -1,0 +1,136 @@
+---
+title: "Lab 10"
+output: pdf_document
+---
+```{r}
+## Intro to Data Science - Lab 10
+
+# IST687 Section M002
+
+# Professor Anderson
+
+# Enter your name here: Chaithra Kopparam Cheluvaiah
+
+# 1. I did this homework by myself, with help from the book and the professor.
+
+```
+Intro to DS – Copyright 2021 by J. Stanton & J. Saltz – Please do not post online. Week 10 – Association Rules Mining
+
+Instructions: Association rules mining, also known as market basket analysis, is an unsupervised data mining technique that discovers patterns in the form of if-then rules. The technique is “unsupervised” in the sense that there is no prediction or classification happening. We are simply trying to find interesting patterns.
+
+In addition to working with “baskets” of objects, association rules mining is good at working with any kind of data that can be expressed as lists of attributes. For example, a trip to Washington DC might consist of the following attributes: train, July, morning departure, afternoon arrival, Union Station, first class, express.
+
+In these exercises we will work with a built-in data set called groceries. Make sure to use the library arules and arulesViz packages before running the following:
+```{r}
+#install.packages("arules")
+#install.packages("arulesViz")
+
+#importing the required libraries
+library(arules)
+library(arulesViz)
+library(tidyverse)
+
+data(Groceries) # Load data into memory
+myGroc <- Groceries # Make a copy for safety
+summary(myGroc) # What is the structure? sparse matrix
+
+```
+
+1.	Examine the data structure that summary() reveals. This is called a sparse matrix, and it efficiently stores a set of market baskets along with meta-data. Report in a comment about some item labels.
+```{r}
+# shows dimensions of sparse matrix with shopping carts as rows and individual items in the columns
+# It also, displays items that are most frequently bought
+
+# stats related to shopping carts:
+# min: every cart has atleast one item
+# median: half the carts are having more than three items
+# mean: average number of items in a cart is 4.4
+# max: maximum number of items in cart is 32
+
+```
+2.	Use the itemFrequency(myGroc) command to generate a list of item frequencies. Save that list in a new data object. Run str( ) on the data object and write a comment describing what it is. Run sort( ) on the data object and save the results. Run head( ) and tail( ) on the sorted object to show the most and least frequently occurring items. What’s the most frequently purchased item?
+```{r}
+itemFreq <- itemFrequency(myGroc)
+str(itemFreq) # shows the relative frequency of occurrence of different items from groceries data
+sortedFreq <- sort(itemFreq) # ascending order of frequencies
+head(sortedFreq) # least frequent items
+tail(sortedFreq) # most frequent items
+```
+3.	Create a frequency plot with itemFrequencyPlot(myGroc, topN=20) and confirm that the plot shows the most frequently purchased item with the left-most bar. Write a comment describing the meaning of the Y-axis.
+```{r}
+itemFrequencyPlot(myGroc, topN=20)
+# confirm that the plot shows the most frequently purchased item with the left-most bar.
+# Plot shows the most frequently purchased items in the left-most bar
+
+# Write a comment describing the meaning of the Y-axis
+# on the y-axis, we have relative frequency of occurrence of different items from groceries data
+```
+4.	Create a cross table with ct <- crossTable(myGroc, sort=TRUE). Examine the first few rows and columns of ct by using the square brackets sub-setting technique. For example, the first two rows and first three columns would be ct[1:2, 1:3]. Write a comment describing one of values. Write a comment describing what is on the diagonal of the matrix.
+```{r}
+ct <- crossTable(myGroc, sort=TRUE)
+ct[1:6, 1:6]
+
+# diagonal elements simply refers to number of times the particular item purchased
+# non-diagonal elements represents number of times both the items bought together
+```
+5.	Run the following analysis:
+rules1 <- apriori(myGroc,parameter=list(supp=0.0008, conf=0.55), control=list(verbose=F), appearance=list(default="lhs",rhs=("bottled beer")))
+```{r}
+# running the algorithm to find association rules in the transaction data
+rules1 <- apriori(myGroc,parameter=list(supp=0.0008, conf=0.55),
+                  control=list(verbose=F),
+                  appearance=list(default="lhs",rhs=("bottled beer")))
+summary(rules1)
+```
+6.	Examine the resulting rule set with inspect( ) and make sense of the results.
+There should be four rules in total.
+```{r}
+inspect(rules1)
+# Rule 4 has the highest lift (12.42) and 100% confidence that when "{soda,liquor,red/blush wine}"
+# are bought together then "{bottled beer}" was also purchased
+
+# Rule 1 has second highest lift (11.24) and 90.5% confidence that when "{liquor,red/blush wine}"
+# are bought then "{bottled beer}" was also purchased
+```
+7. Adjust the support parameter to a new value so that you get more rules. Anywhere between 10 and 30 rules would be fine. Examine the new rule set with inspect( ). Does your interpretation of the situation still make sense?
+```{r}
+rules1 <- apriori(myGroc,parameter=list(supp=0.0006, conf=0.45),
+                  control=list(verbose=F),
+                  appearance=list(default="lhs",rhs=("bottled beer")))
+inspect(rules1)
+
+# when we lower the support, there can be other common items purchased together and algorithm can
+# generate more rules
+```
+8. Power User: use mtcars to create a new dataframe with factors (e.g., cyl attribute). Then create an mpg column with “good” or “bad” (good MPG is above 25). Convert the dataframe to a transactions dataset and then predict rules for having bad MPG.
+```{r}
+head(mtcars)
+str(mtcars)
+# step 1: convert any numbers or strings into facotrs
+cars <- mtcars %>% mutate(cyl=as.factor(cyl)) %>%
+  mutate(mpg= if_else(mpg>25,"Good","Bad")) %>%
+  mutate(disp=as.factor(disp)) %>%
+  mutate(hp=as.factor(hp)) %>%
+  mutate(drat=as.factor(drat)) %>%
+  mutate(wt=as.factor(wt)) %>%
+  mutate(qsec=as.factor(qsec)) %>%
+  mutate(vs=as.factor(vs)) %>%
+  mutate(am=as.factor(am)) %>%
+  mutate(gear=as.factor(gear)) %>%
+  mutate(carb=as.factor(carb))
+
+str(cars) # all the columns are factors
+
+#Step 2: converting dataframe to transactions
+carTrans <- as(cars,"transactions")
+summary(carTrans)
+
+#Step 3: using apriori(), running the alogrithm to find association rules
+rule3 <- apriori(cars,parameter=list(supp=0.40, conf=0.50),
+                 control=list(verbose=F),
+                 appearance=list(default="lhs",rhs=("mpg=Bad")))
+summary(rule3)
+
+#Step 4: inspecting the rules
+inspect(rule3)
+```
