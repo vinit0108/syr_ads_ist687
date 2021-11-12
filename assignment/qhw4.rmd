@@ -1,0 +1,133 @@
+# Intro to Data Science - HW 4
+
+##### Copyright 2021, Jeffrey Stanton, Jeffrey Saltz, and Jasmina Tacheva
+
+
+```{r}
+# Enter your name here: 
+```
+
+### Attribution statement: (choose only one and delete the rest)
+
+
+```{r}
+# 1. I did this homework by myself, with help from the book and the professor.
+# 2. I did this homework with help from the book and the professor and these Internet sources:
+# 3. I did this homework with help from <Name of another student> but did not cut and paste any code.
+```
+
+**(Chapters 8, 9, and 10 of Introduction to Data Science)** <br>
+
+Reminders of things to practice from previous weeks: <br>
+Descriptive statistics: 	mean( )  max( ) min( )<br>
+Sequence operator:		: (For example, 1:4 is shorthand for 1, 2, 3, 4)<br>
+Create a function:		myFunc <- function(myArg) { }<br>
+?command:			Ask R for help with a command<br>
+
+**This module:** **Sampling** is a process of **drawing elements from a larger set**. In data science, when analysts work with data, they often work with a sample of the data, rather than all of the data (which we call the **population**), because of the expense of obtaining all of the data. <br>
+
+One must be careful, however, because **statistics from a sample rarely match the characteristics of the population**. The **goal of this homework** is to **sample from a data set several times and explore the meaning of the results**. Before you get started make sure to read Chapters 8-10 of An Introduction to Data Science. Don’t forget your comments!
+
+
+## Part 1: Write a function to compute statistics for a vector of numeric values
+
+A.	Create a new function which takes a numeric vector as its input argument and returns a dataframe of statistics about that vector as the output. As a start, the dataframe should have the min, mean, and max of the vector. The function should be called **vectorStats**:
+
+
+```{r}
+
+```
+
+B.	Test your function by calling it with the numbers **one through ten**:
+
+
+```{r}
+vectorStats(1:10)
+```
+
+C.	Enhance the vectorStats() function to add the **median** and **standard deviation** to the returned dataframe.
+
+
+```{r}
+
+```
+
+D.	Retest your enhanced function by calling it with the numbers **one through ten**:
+
+
+```{r}
+vectorStats(1:10)
+```
+
+## Part 2: Sample repeatedly from the mtcars built-in dataframe
+
+E.	Copy the mtcars dataframe:
+
+
+```{r}
+myCars <- mtcars
+```
+
+Use **head(myCars)** and **tail(myCars)** to show the data. Add a comment that describes what each variable in the data set contains. <br>
+**Hint:** Use the ?  or help( ) command with mtcars to get help on this dataset.
+
+
+```{r}
+
+```
+
+F.	Sample three observations from **myCars$mpg**.
+
+
+```{r}
+
+```
+
+G.	Call your vectorStats( ) function with a new sample of three observations from **myCars$mpg**, where the sampling is done inside the **vectorStats** function call. Then use the **mean** function, with another sample done inside the mean function. Is the mean returned from the vectorStats function from the first sample the same as the mean returned from the mean function on the second sample? Why or Why not?
+
+
+```{r}
+
+```
+
+H.	Use the replicate( ) function to repeat your sampling of mtcars ten times, with each sample calling mean() on three observations. The first argument to replicate( ) is the number of repeats you want. The second argument is the little chunk of code you want repeated.
+
+
+```{r}
+
+```
+
+I.	Write a comment describing why every replication produces a different result.
+
+
+```{r}
+
+```
+
+J.	Rerun your replication, this time doing 1000 replications and storing the output of replicate() in a variable called **values**.
+
+
+```{r}
+
+```
+
+K.	 Generate a **histogram** of the means stored in **values**. 
+
+
+```{r}
+
+```
+
+L.	Repeat the replicated sampling, but this time, raise your sample size from **3 to 22**. 
+
+
+```{r}
+
+```
+
+M. Compare the two histograms - why are they different? Explain in a comment.
+
+
+```{r}
+
+```
