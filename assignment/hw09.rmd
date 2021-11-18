@@ -7,7 +7,7 @@ output: pdf_document
 
 
 ```{r}
-# Enter your name here: Chaithra Kopparam Cheluvaiah
+# Enter your name here: Chaithra Kopparam
 ```
 
 ### Attribution statement: (choose only one and delete the rest)
