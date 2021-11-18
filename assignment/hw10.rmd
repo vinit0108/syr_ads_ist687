@@ -1,3 +1,7 @@
+---
+title: "HW 10"
+output: pdf_document
+---
 # Intro to Data Science - HW 10
 
 ##### Copyright 2021, Jeffrey Stanton, Jeffrey Saltz, and Jasmina Tacheva
@@ -12,8 +16,6 @@
 
 ```{r}
 # 1. I did this homework by myself, with help from the book and the professor.
-# 2. I did this homework with help from the book and the professor and these Internet sources:
-# 3. I did this homework with help from <Name of another student> but did not cut and paste any code.
 ```
 
 **Association mining** can be applied to many data problems beyond the well-known example of **finding relationships between different products in customer shopping data**. In this homework assignment, we will explore **real data** from the banking sector and look for **patterns associated with the likelihood of responding positively to a direct marketing campaign and signing up for a term deposit with the bank (stored in the variable “y”)**. <br>
@@ -30,14 +32,16 @@ In situations like this, consider using either read.csv or read.table, with two 
 
 
 ```{r}
-
+# loading the CSV data to dataframe
+bank <- read.csv("https://intro-datascience.s3.us-east-2.amazonaws.com/bank-full.csv", sep=";", header=TRUE)
+summary(bank)
 ```
 
 Make sure there are **41,188** rows and **21** columns in your **bank** df.
 
 
 ```{r}
-
+dim(bank) # checking for number of rows and columns
 ```
 
 B.	Next, we will focus on some key factor variables from the dataset, and convert a few numeric ones to factor variables. Execute the following command.  Write a comment describing how the conversion for each numeric variable works and what are the variables in the resulting dataframe.
@@ -51,27 +55,51 @@ bank_new <- data.frame(job=as.factor(bank$job),
                      contacted_more_than_once=as.factor(bank$campaign>1),
                      contacted_before_this_campaign=as.factor(bank$previous<0),
                      success=as.factor(bank$y))
+# job: converting string to categorical/factor variable. it represents type of job ('admin.','blue-collar',
+# 'entrepreneur', 'housemaid','management','retired','self-employed','services','student','technician','unemployed',
+# 'unknown')
+
+# marital: converting string to factor variable. it represents marital status (categorical: 'divorced','married',
+# 'single','unknown'; note: 'divorced' means divorced or widowed)
+
+# housing_loan: converting string to factor variable. it represenets whether client has housing loan?
+# (categorical: 'no','yes','unknown')
+
+# young: converting quantitative variable to factor variable(TRUE/FALSE) based on a condition whether client age is
+# less than median age.
+
+# contacted_more_than_once: converting quantitative variable to factor variable (TRUE/FALSE) based on
+# number of contacts performed during the campaign. if campaign has value more than 1, then factor variable
+# will be TRUE otherwise FALSE
+
+#  contacted_before_this_campaign:converting quantitative variable to factor variable (TRUE/FALSE) based on
+# number of contacts performed before the campaign. if previous has value less than zero, then factor vaiable will be
+# TRUE otherwise FALSE
+
+# success: converting string variable to factor variable. it represents whether the client subscribed for term deposit?
+# (binary: 'yes','no')
 ```
 
 C.	Count the number of successful term deposit sign-ups, using the table( ) command on the **success** variable.
 
 
 ```{r}
-
+table(bank_new$success) # creating contingency table
 ```
 
 D.	Express the results of problem C as percentages by sending the results of the table( ) command into the prop.table( ) command.
 
 
 ```{r}
-
+prop.table(table(bank_new$success)) # table with proportions
 ```
 
 E.	Using the same techniques, show the percentages for the **marital** and **housing_loan** variables as well.
 
 
 ```{r}
-
+prop.table(table(bank_new$marital))
+prop.table(table(bank_new$housing_loan))
 ```
 
 ## Part 2: Coerce the data frame into transactions
@@ -80,19 +108,29 @@ F.	Install and library two packages: **arules** and **arulesViz**.
 
 
 ```{r}
-
+# importing the required libraries
+library(arules)
+library(arulesViz)
 ```
 
 G.	Coerce the **bank_new** dataframe into a **sparse transactions matrix** called **bankX**.
 
 
 ```{r}
-
+bankX <- as(bank_new, "transactions") # converting dataframe to transactions
+summary(bankX)
 ```
 
 H.	Use the itemFrequency( ) and itemFrequencyPlot( ) commands to explore the contents of **bankX**. What do you see?
 ```{r}
-
+itemFreq <- itemFrequency(bankX)  # relative frequency of occurrence of all attributes in bank_new data
+str(itemFreq)
+head(itemFreq)
+tail(itemFreq)
+```
+```{r}
+itemFrequencyPlot(bankX, topN=20)
+# bar graph that shows the most frequently repeated attribute in the left-most bar
 ```
 
 I.	This is a fairly large dataset, so we will explore only the first 10 observations in the **bankX** transaction matrix:
@@ -102,7 +140,19 @@ inspect(bankX[1:10])
 
 Explain the difference between **bank_new** and **bankX** in a block comment:
 ```{r}
+# bank_new is a data frame with rows and columns
+# rows will be observation, columns are characteristics of the data
+# content of this matrix will be data-point in the format string, floating-point, integer, boolean etc.,
 
+# bankX is a itemMatrix object in sparse format. Each row is a list of items like {job=blue-collar,
+#       marital=married,
+#       housing_loan=no,
+#       young=FALSE,
+#       contacted_more_than_once=FALSE,
+#       contacted_before_this_campaign=FALSE,
+#       success=no}
+# The columns are the individual items.
+# also, content of this matrix will be only 0 or 1
 ```
 
 ## Part 3: Use arules to discover patterns
@@ -113,15 +163,37 @@ Explain the difference between **bank_new** and **bankX** in a block comment:
 J.	Use **apriori** to generate a set of rules with support over 0.005 and confidence over 0.3, and trying to predict who successfully signed up for a term deposit. <br>
 **Hint:** You need to define the **right-hand side rule (rhs)**.
 ```{r}
-
+# running the algorithm to find association rules in the transaction data
+ruleset <- apriori(bankX,parameter=list(supp=0.005, conf=0.3),
+                  control=list(verbose=F),
+                  appearance=list(default="lhs",rhs=("success=yes")))
+summary(ruleset)
 ```
 
 K.	Use inspect() to review of the **ruleset**.
 ```{r}
-
+inspect(ruleset)
 ```
 
 L.	Use the output of inspect( ) or inspectDT( ) and describe **any 2 rules** the algorithm found.
 ```{r}
+# I picked the rules that has higest lift and having highest confidence among the rules that are returned in
+# previous step
+
+# Rule 8: {job=student, marital=single, young=TRUE, contacted_before_this_campaign=FALSE} => {success=yes}
+# It the highest lift (2.87) and 32.34% confidence
+# whenever {job=student, marital=single, young=TRUE, contacted_before_this_campaign=FALSE} are together
+# then "{success=yes}" also appears
+# Interpretation: client who is a student, single, young (age<38, median age) and was not contacted before the
+# campaign is more likely to subscribe to term deposit.
+
+# Rule 5: {job=student,marital=single,young=TRUE}  => {success=yes}
+# It the highest lift (2.87) and 32.34% confidence
+# whenever {job=student,marital=single,young=TRUE} are together then "{success=yes}" also appears
+# Interpretation: client who is a student, single and young (age<38, median age) is more likely to subscribe
+# to term deposit.
+
+# marketing campaigns should be more targeted towards the above individuals
+
 
 ```
