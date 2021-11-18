@@ -33,7 +33,8 @@ In situations like this, consider using either read.csv or read.table, with two 
 
 ```{r}
 # loading the CSV data to dataframe
-bank <- read.csv("https://intro-datascience.s3.us-east-2.amazonaws.com/bank-full.csv", sep=";", header=TRUE)
+bank <- read.csv("https://intro-datascience.s3.us-east-2.amazonaws.com/bank-full.csv",
+                 sep=";", header=TRUE)
 summary(bank)
 ```
 
@@ -55,29 +56,29 @@ bank_new <- data.frame(job=as.factor(bank$job),
                      contacted_more_than_once=as.factor(bank$campaign>1),
                      contacted_before_this_campaign=as.factor(bank$previous<0),
                      success=as.factor(bank$y))
-# job: converting string to categorical/factor variable. it represents type of job ('admin.','blue-collar',
-# 'entrepreneur', 'housemaid','management','retired','self-employed','services','student','technician','unemployed',
-# 'unknown')
+# job: converting string to categorical/factor variable. it represents type of job
+# ('admin.','blue-collar', 'entrepreneur', 'housemaid','management','retired',
+# 'self-employed','services','student','technician','unemployed','unknown')
 
-# marital: converting string to factor variable. it represents marital status (categorical: 'divorced','married',
-# 'single','unknown'; note: 'divorced' means divorced or widowed)
+# marital: converting string to factor variable. it represents marital status
+# (categorical: 'divorced','married', 'single','unknown')
 
-# housing_loan: converting string to factor variable. it represenets whether client has housing loan?
-# (categorical: 'no','yes','unknown')
+# housing_loan: converting string to factor variable. it represenets whether client
+# has housing loan? (categorical: 'no','yes','unknown')
 
-# young: converting quantitative variable to factor variable(TRUE/FALSE) based on a condition whether client age is
-# less than median age.
+# young: converting quantitative variable to factor variable(TRUE/FALSE) based on a
+# condition whether client age is less than median age.
 
-# contacted_more_than_once: converting quantitative variable to factor variable (TRUE/FALSE) based on
-# number of contacts performed during the campaign. if campaign has value more than 1, then factor variable
-# will be TRUE otherwise FALSE
+# contacted_more_than_once: converting quantitative variable to factor variable(TRUE/FALSE)
+# based on number of contacts performed during the campaign. if campaign has value more
+# than 1, then factor variable will be TRUE otherwise FALSE
 
-#  contacted_before_this_campaign:converting quantitative variable to factor variable (TRUE/FALSE) based on
-# number of contacts performed before the campaign. if previous has value less than zero, then factor vaiable will be
-# TRUE otherwise FALSE
+# contacted_before_this_campaign:converting quantitative variable to factor
+# variable(TRUE/FALSE) based on number of contacts performed before the campaign.
+# if previous has value less than zero, then factor vaiable will be TRUE otherwise FALSE
 
-# success: converting string variable to factor variable. it represents whether the client subscribed for term deposit?
-# (binary: 'yes','no')
+# success: converting string variable to factor variable. it represents whether
+# the client subscribed for term deposit? (binary: 'yes','no')
 ```
 
 C.	Count the number of successful term deposit sign-ups, using the table( ) command on the **success** variable.
@@ -123,13 +124,14 @@ summary(bankX)
 
 H.	Use the itemFrequency( ) and itemFrequencyPlot( ) commands to explore the contents of **bankX**. What do you see?
 ```{r}
-itemFreq <- itemFrequency(bankX)  # relative frequency of occurrence of all attributes in bank_new data
+itemFreq <- itemFrequency(bankX)  # relative frequency of occurrence of all attributes
+# in bank_new data
 str(itemFreq)
 head(itemFreq)
 tail(itemFreq)
 ```
 ```{r}
-itemFrequencyPlot(bankX, topN=20)
+itemFrequencyPlot(bankX, topN=20, cex=0.6)
 # bar graph that shows the most frequently repeated attribute in the left-most bar
 ```
 
@@ -177,21 +179,22 @@ inspect(ruleset)
 
 L.	Use the output of inspect( ) or inspectDT( ) and describe **any 2 rules** the algorithm found.
 ```{r}
-# I picked the rules that has higest lift and having highest confidence among the rules that are returned in
-# previous step
+# I picked the rules that has higest lift and having highest confidence among the rules that are
+# returned in previous step
 
-# Rule 8: {job=student, marital=single, young=TRUE, contacted_before_this_campaign=FALSE} => {success=yes}
+# Rule 8: {job=student, marital=single, young=TRUE, contacted_before_this_campaign=FALSE} =>
+# {success=yes}
 # It the highest lift (2.87) and 32.34% confidence
-# whenever {job=student, marital=single, young=TRUE, contacted_before_this_campaign=FALSE} are together
-# then "{success=yes}" also appears
-# Interpretation: client who is a student, single, young (age<38, median age) and was not contacted before the
-# campaign is more likely to subscribe to term deposit.
+# whenever {job=student, marital=single, young=TRUE, contacted_before_this_campaign=FALSE} are
+# together then "{success=yes}" also appears
+# Interpretation: client who is a student, single, young (age<38, median age) and was not
+# contacted before the campaign is more likely to subscribe to term deposit.
 
 # Rule 5: {job=student,marital=single,young=TRUE}  => {success=yes}
 # It the highest lift (2.87) and 32.34% confidence
 # whenever {job=student,marital=single,young=TRUE} are together then "{success=yes}" also appears
-# Interpretation: client who is a student, single and young (age<38, median age) is more likely to subscribe
-# to term deposit.
+# Interpretation: client who is a student, single and young (age<38, median age) is more likely
+# to subscribe to term deposit.
 
 # marketing campaigns should be more targeted towards the above individuals
 
