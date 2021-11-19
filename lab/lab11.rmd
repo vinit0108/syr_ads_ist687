@@ -1,17 +1,30 @@
 ---
-title: "Week 11 Lab – Text Mining"
+title: "Lab 11"
 output: pdf_document
 ---
+```{r}
+## Intro to Data Science - Lab 11
 
+# IST687 Section M002
+
+# Professor Anderson
+
+# Enter your name here: Chaithra Kopparam Cheluvaiah
+
+# 2. I did this homework with help from the book and the professor and these Internet sources:
+# https://www.rdocumentation.org/packages/quanteda/versions/2.1.2/topics/textstat_frequency
+```
 Instructions: Text mining plays an important role in many industries because of the prevalence of text in the interactions between customers and company representatives. Even when the customer interaction is by speech, rather than by chat or email, speech to text algorithms have gotten so good that transcriptions of these spoken word interactions are often available. To an increasing extent, a data scientist needs to be able to wield tools that turn a body of text into actionable insights.
 
 In this exercise, we work with a small number of social media posts on the topic of climate change. Make sure to install and library the readr and quanteda package before starting the exercise. Please include an attribution statement (see syllabus).
 ```{r}
+# install.packages("quanteda")
+# install.packages("quanteda.textstats")
+# install.packages("quanteda.textplots")
+
+# importing the required libraries
 library(tidyverse)
-install.packages("quanteda")
 library(quanteda)
-install.packages("quanteda.textstats")
-install.packages("quanteda.textplots")
 library(quanteda.textstats)
 library(quanteda.textplots)
 ```
@@ -20,12 +33,20 @@ https://intro-datascience.s3.us-east-2.amazonaws.com/ClimatePosts.csv
 
 The name of the file is “ClimatePosts.csv”. Store the data in a data frame called tweetDF. Use str(tweetDF) to summarize the data. Add a comment describing what you see. Make sure to explain what each of the three variables contains.
 ```{r}
+# load the data file
 tweetDF <- read_csv("https://intro-datascience.s3.us-east-2.amazonaws.com/ClimatePosts.csv")
 str(tweetDF)
+
+# tweetDF is a dataframe with 18 rows and 3 columns.
+# columns of the data frame are:
+# 1) ID: Twitter Id of the users. we are going to treat Id as document name for our text analysis
+# 2) Skeptic: '0' seems to represent positive emotion and '1' seems to be negative emotion
+# 3) Tweet: actual tweet made by the user
 ```
 2.	Use the corpus commands to turn the text variable into a quanteda corpus. You can use the IDs as the document titles with the following command:
 tweetCorpus <- corpus(tweetDF$Tweet, docnames=tweetDF$ID)
 ```{r}
+# making corpus of tweets and treating each "ID" as document
 tweetCorpus <- corpus(tweetDF$Tweet, docnames=tweetDF$ID)
 ```
 3.	Next, convert the corpus into a document-feature matrix (DFM).  Before you do that you can use “tokens” to remove punctuation and stop words. Use this code:
@@ -35,19 +56,37 @@ toks_nostop <- tokens_select(toks, pattern = stopwords("en"), selection = "remov
 Here’s a command that will create the DFM:
 tweetDFM <- dfm(tweetCorpustoken, tolower = TRUE )
 ```{r}
-toks <- tokens(tweetCorpus, remove_punct=TRUE)
+# creating token object by calling internal quanteda tokenizer
+# It separates the tweets based "space" as delimiter. toks will have
+# list of words from the tweets mapped to each document based on ID
+toks <- tokens(tweetCorpus, remove_punct=TRUE) # removes punctuations also
+
+# removing the stop words
 toks_nostop <- tokens_select(toks, pattern = stopwords("en"), selection = "remove")
 
-tweetDFM <- dfm(toks_nostop, tolower = TRUE )
+# creating document feature matrix from the corpus
+tweetDFM <- dfm(toks_nostop, tolower = TRUE ) # also converts tokens into lower case
+
 ```
 4.	Type tweetDFM at the console to find out the basic characteristic of the DFM (the number of terms, the number of documents, and the sparsity of the matrix). Write a comment describing what you observe.
 ```{r}
 tweetDFM
+# It is a document feature matrix also called sparse matrix flagging the appearance
+# of terms in the documents
+
+# In tweets dfm, we have 18 documents with 223 features
+# documents are tweet ids which will be treated as row headers/document title
+# features are the columns. These are unique list of tokens/words from the corpus
 ```
 5.	Create a wordcloud from the DFM using the following command. Write a comment describing notable features of the wordcloud:
 textplot_wordcloud(tweetDFM, min_count = 1)
 ```{r}
-textplot_wordcloud(tweetDFM, min_count = 1)
+# feature labels are plotted with their sizes proportional to their numerical values in the dfm
+textplot_wordcloud(tweetDFM, min_count = 1) # creates word cloud with all the words
+# having atleast count 1
+
+# notable features are climate, change, global, warming, planet, water, crisis, people
+# looks like tweets are about climate change caused by global warming
 ```
 6.	Using textstat_frequency() from the quanteda.textstats package, show the 10 most frequent words, and how many times each was used/mentioned.
 
@@ -57,39 +96,85 @@ textstat_frequency(x=tweetDFM, n=10)
 7.	Next, we will read in dictionaries of positive and negative words to see what we can match up to the text in our DFM. Here’s a line of code for reading in the list of positive words:
 
 URL <- "https://intro-datascience.s3.us-east-2.amazonaws.com/positive-words.txt"
-posWords <- scan(URL, character(0), sep = "\n")
+posWords <- scan(URL, character(0), sep = "n")
 posWords <- posWords[-1:-34]
 
 Create a similar line of code to read in the negative words, with the following URL: https://intro-datascience.s3.us-east-2.amazonaws.com/negative-words.txt
 
 There should be 2006 positive words and 4783 negative words.
 ```{r}
+# positive word file location
 URL <- "https://intro-datascience.s3.us-east-2.amazonaws.com/positive-words.txt"
-posWords <- scan(URL, character(0), sep = "\n")
+
+#read in positive word file from the URL
+posWords <- scan(URL, what="character", sep='\n')
+
+#removing header info
 posWords <- posWords[-1:-34]
 
+length(posWords)
+
+
+#negative word file location
 URL <- "https://intro-datascience.s3.us-east-2.amazonaws.com/negative-words.txt"
-negWords <- scan(URL, character(0), sep = "\n")
+# read in negative word file from the URL
+negWords <- scan(URL, what = "character", sep='\n')
+# removing header row
 negWords <- negWords[-1:-34]
+
+length(negWords)
+
 
 ```
 8.	Explain what the following lines of code does and comment each line. Then add similar code for the negative words.
 posDFM <- dfm_match(tweetDFM, posWords)
 posFreq <- textstat_frequency(posDFM)
 ```{r}
+# will filter positive words from tweetDfm using posWords. output will have matching positive features
+# and corresponding frequency, rank, and docfreq of positive words appearing in the document
 posDFM <- dfm_match(tweetDFM, posWords)
+
+#counting the positive words
 posFreq <- textstat_frequency(posDFM)
 
+# will filter negative words from tweetDfm using negWords. output will have matching neagtive features
+# and corresponding frequency, rank, and docfreq of negative words appearing in the document
 negDFM <- dfm_match(tweetDFM, negWords)
+
+#counting the negative words
 negFreq <- textstat_frequency(negDFM)
 ```
 9.	Explore posFreq and negFreq using str() or glimpse(). Explain the fields in these data frames.
 ```{r}
 glimpse(posFreq)
+# output contains feature: unique list of positive words extracted from corpus ie., tweets
+# it indicates there are 12 positive words used in the tweet
+
+# frequency: indicates how many times each positive word appeared in the tweets
+
+# rank: ranking the frequency of positve words. for example: words like "enough","like"
+# is most frequently used word, so it has frequency rank one.
+
+# docfreq: it shows number of different documents in which the word appeared
+
+# group:  If features have been grouped, then we will have all counts, ranks, and
+# document frequencies are within group.
+
 glimpse(negFreq)
+# output contains feature: unique list of neagtive words extracted from corpus ie., tweets
+# it indicates there are 17 negative words used in the tweet
+
+# frequency: indicates how many times each neagtive word appeared in the tweets
+
+# rank: ranking the frequency of negative words. for example: word "crisis"
+# is most frequently used word, so it has frequency rank one.
+
+# docfreq: it shows number of different documents in which the word appeared
+
+# group:  If features have been grouped, then we will have all counts, ranks, and
+# document frequencies are within group.
 ```
-10.	 Output the 10 most frequently occurring positive and negative words
-including how often each occurred.
+10.	 Output the 10 most frequently occurring positive and negative words including how often each occurred.
 ```{r}
 posFreq %>% slice(1:10)
 negFreq %>% slice(1:10)
