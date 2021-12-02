@@ -223,19 +223,20 @@ X. Complete the function below, so that it returns a sentiment score (number of 
 
 ```{r}
 doMySentiment <- function(posWords, negWords, stringToAnalyze ) {
-  words <- strsplit("This book is horrible", " ")
-  count_poswords <- 0
-  count_negwords <- 0
+  words <- strsplit("This book is horrible", " ") # split the string based on
+  # delimited "space"
+  num_positive <- 0
+  num_negative <- 0
   for(word in unlist(words)){
-    if(is.element(word, posWords)){
-      print(word)
-      count_poswords <- count_poswords + 1
+    if(word %in% posWords){ # checking for positive word
+      num_positive <- num_positive + 1
     }
-    if(is.element(word, negWords)){
-      count_negwords <- count_negwords + 1
+    else if(word %in% negWords){ # checking for negative word
+      num_negative <- num_negative + 1
     }
   }
-  sentimentScore <- count_poswords - count_negwords
+  # sentiment score (number of positive words - number of negative words)
+  sentimentScore <- num_positive - num_negative
   return(sentimentScore)
 }
 
