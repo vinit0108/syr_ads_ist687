@@ -33,9 +33,8 @@ A.	Take a look at this article: https://samedelstein.medium.com/snowplow-naming-
 
 ```{r}
 # Article is about snowplow naming contest in Syracuse city.
-# after announcing the winning names, some felt there were other options
-# that would have been better.
-# so, data of all the submissions was then collected and analysed
+# after announcing the winning names, few of them felt there were other options
+# that would have been better. so, data of all the submissions was collected and analysed
 ```
 
 B.	Read the data from the following URL into a dataframe called **df**:
@@ -66,8 +65,9 @@ library(quanteda)
 snowPlowCorpus <- corpus(df$meaning, docnames=df$submission_number)
 
 # creating token object by calling internal quanteda tokenizer
-# It separates words in meaning column based "space" as delimiter.
-# toks will have list of words from the meaning mapped to each document based on submission number
+# It separates words in meaning column based on "space" as delimiter.
+# toks will have list of words from the meaning column mapped to each document
+# based on submission number
 toks <- tokens(snowPlowCorpus, remove_punct=TRUE)
 
 # removing the stop words
@@ -223,7 +223,19 @@ X. Complete the function below, so that it returns a sentiment score (number of 
 
 ```{r}
 doMySentiment <- function(posWords, negWords, stringToAnalyze ) {
-  sentimentScore <- length(posWords) - length(negWords)
+  words <- strsplit("This book is horrible", " ")
+  count_poswords <- 0
+  count_negwords <- 0
+  for(word in unlist(words)){
+    if(is.element(word, posWords)){
+      print(word)
+      count_poswords <- count_poswords + 1
+    }
+    if(is.element(word, negWords)){
+      count_negwords <- count_negwords + 1
+    }
+  }
+  sentimentScore <- count_poswords - count_negwords
   return(sentimentScore)
 }
 
@@ -234,7 +246,6 @@ X. Test your function with the string "This book is horrible"
 
 ```{r}
 doMySentiment(posWords, negWords, "This book is horrible")
-
 ```
 
 Use the syuzhet package, to calculate the sentiment of the same phrase ("This book is horrible"), using syuzhet's **get_sentiment()** function, using the afinn method. In AFINN, words are scored as integers from -5 to +5:
